@@ -1,0 +1,23 @@
+// This is your Prisma schema file
+// It defines your database structure — tables, columns, relationships
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // We're using PostgreSQL
+  provider = "postgresql"
+  // The connection string comes from our .env file
+  url      = env("DATABASE_URL")
+}
+
+// User table — just the basics for now
+// We'll expand this significantly in Phase 2 (Authentication)
+model User {
+  id        String   @id @default(cuid())  // unique ID auto-generated
+  email     String   @unique               // no two users can have same email
+  name      String
+  createdAt DateTime @default(now())       // automatically set when created
+  updatedAt DateTime @updatedAt            // automatically updated on every save
+}
