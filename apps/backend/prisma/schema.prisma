@@ -1,5 +1,5 @@
 // This is your Prisma schema file
-// It defines your database structure — tables, columns, relationships
+// It defines your database structure — collections, fields, relationships
 
 generator client {
   provider = "prisma-client-js"
@@ -12,12 +12,29 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User table — just the basics for now
-// We'll expand this significantly in Phase 2 (Authentication)
+// ─── User ────────────────────────────────────────────────────────────────────
+// Represents a person who has signed up for WatchTower
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId  // MongoDB auto-generated ObjectId
-  email     String   @unique                                         // no two users can have same email
-  name      String
-  createdAt DateTime @default(now())                                 // automatically set when created
-  updatedAt DateTime @updatedAt                                      // automatically updated on every save
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  email        String   @unique              // no two accounts with the same email
+  name         String
+  password     String                        // bcrypt hash — NEVER store plain text
+  role         String   @default("OWNER")   // OWNER | DEVELOPER | VIEWER (Phase 3 expands this)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // A user can have many refresh tokens (one per device/session)
+  refreshTokens RefreshToken[]
+}
+
+// ─── RefreshToken ─────────────────────────────────────────────────────────────
+// Stores issued refresh tokens so we can invalidate them on logout
+// Without this, a stolen refresh token would work forever until it naturally expires
+model RefreshToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  token     String   @unique              // the actual token string
+  userId    String   @db.ObjectId         // which user this belongs to
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime                      // when this token is no longer valid
+  createdAt DateTime @default(now())
 }
