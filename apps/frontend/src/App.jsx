@@ -1,13 +1,34 @@
-function App() {
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext.jsx";
+import { ProtectedRoute, PublicOnlyRoute } from "./components/ProtectedRoute.jsx";
+import LoginPage from "./pages/LoginPage.jsx";
+import RegisterPage from "./pages/RegisterPage.jsx";
+import DashboardPage from "./pages/DashboardPage.jsx";
+
+export default function App() {
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-blue-400">WatchTower</h1>
-        <p className="text-gray-400 mt-2">API Monitoring Platform</p>
-        <p className="text-green-400 mt-4 text-sm">✅ Frontend is running</p>
-      </div>
-    </div>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Guest-only routes (redirect to /dashboard if logged in) */}
+          <Route element={<PublicOnlyRoute />}>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+          </Route>
+
+          {/* Protected routes (redirect to /login if NOT logged in) */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<DashboardPage />} />
+          </Route>
+
+          {/* Root redirect */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+          {/* 404 Catch-all */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
-
-export default App;
