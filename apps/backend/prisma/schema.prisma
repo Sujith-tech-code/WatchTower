@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  // We're using PostgreSQL
-  provider = "postgresql"
+  // We're using MongoDB
+  provider = "mongodb"
   // The connection string comes from our .env file
   url      = env("DATABASE_URL")
 }
@@ -15,9 +15,9 @@ datasource db {
 // User table — just the basics for now
 // We'll expand this significantly in Phase 2 (Authentication)
 model User {
-  id        String   @id @default(cuid())  // unique ID auto-generated
-  email     String   @unique               // no two users can have same email
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId  // MongoDB auto-generated ObjectId
+  email     String   @unique                                         // no two users can have same email
   name      String
-  createdAt DateTime @default(now())       // automatically set when created
-  updatedAt DateTime @updatedAt            // automatically updated on every save
+  createdAt DateTime @default(now())                                 // automatically set when created
+  updatedAt DateTime @updatedAt                                      // automatically updated on every save
 }

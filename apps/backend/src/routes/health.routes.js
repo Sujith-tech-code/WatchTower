@@ -7,8 +7,9 @@ const router = Router();
 // Returns server status and database connectivity
 router.get("/", async (req, res) => {
   try {
-    // Try a simple DB query to confirm database is connected
-    await prisma.$queryRaw`SELECT 1`;
+    // Try a simple DB command to confirm database is connected
+    // MongoDB uses runCommand instead of SQL queries
+    await prisma.$runCommandRaw({ ping: 1 });
 
     res.json({
       success: true,
